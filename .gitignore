@@ -1,0 +1,8 @@
+#Pastas
+.venv*, venv/
+__pycache__/, *.pyc
+logs/
+
+#Arquivos gerados
+*.sqlite, *.db
+*.zip, *.tmp
