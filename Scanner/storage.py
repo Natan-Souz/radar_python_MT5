@@ -1,4 +1,3 @@
-# python_radar/storage.py
 from __future__ import annotations
 
 import sqlite3

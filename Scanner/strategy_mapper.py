@@ -1,4 +1,3 @@
-# python_radar/strategy_mapper.py
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -6,26 +6,29 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+
 @dataclass(frozen=True)
 class LogConfig:
     name: str = "python_radar"
     level: int = logging.INFO
 
-    #Arquivos rotativos
+    # Arquivo (rotativo)
     log_dir: str = "logs"
     log_file: str = "radar.log"
     max_bytes: int = 5 * 1024 * 1024  # 5 MB
     backup_count: int = 5
 
-    #Print em console
+    # Console
     console: bool = True
-    
+
     # Formato
+    # Inclui "extras" como symbol/regime/strategy quando presentes
     fmt: str = (
         "%(asctime)s | %(levelname)s | %(name)s | "
         "symbol=%(symbol)s regime=%(regime)s strategy=%(strategy)s | %(message)s"
     )
     datefmt: str = "%Y-%m-%d %H:%M:%S"
+
 
 class _ContextFilter(logging.Filter):
     """
@@ -40,27 +43,28 @@ class _ContextFilter(logging.Filter):
             record.strategy = "-"
         return True
 
+
 def setup_logger(cfg: LogConfig = LogConfig()) -> logging.Logger:
     logger = logging.getLogger(cfg.name)
     logger.setLevel(cfg.level)
-    logger.propagate = False # evita logs duplicados
+    logger.propagate = False  # evita logs duplicados
 
-    # Evita adicionar handlers repetidos
+    # Evita adicionar handlers repetidos em re-import/reload
     if logger.handlers:
         return logger
-    
+
     formatter = logging.Formatter(cfg.fmt, datefmt=cfg.datefmt)
     logger.addFilter(_ContextFilter())
 
-    #Console handler
+    # Console handler
     if cfg.console:
         ch = logging.StreamHandler()
         ch.setLevel(cfg.level)
-        ch.format(formatter)
+        ch.setFormatter(formatter)
         logger.addHandler(ch)
-    
-    # Arquivo handler rotativo
-    log_dir =  Path(cfg.log_dir)
+
+    # File handler rotativo
+    log_dir = Path(cfg.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
     fh = RotatingFileHandler(
         log_dir / cfg.log_file,
@@ -73,6 +77,7 @@ def setup_logger(cfg: LogConfig = LogConfig()) -> logging.Logger:
     logger.addHandler(fh)
 
     return logger
+
 
 def log_ctx(
     logger: logging.Logger,
